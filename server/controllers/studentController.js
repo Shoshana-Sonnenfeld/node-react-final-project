@@ -1,3 +1,4 @@
+const student = require("../models/student")
 const Student = require("../models/student")
 const { isValidId } = require("../utils")
 
@@ -45,6 +46,17 @@ const getAll = async (req, res) => {
         res.status(500).json({ message: 'Failed to get students', error })
     }
 }
+
+
+const getAllClasses = async (req, res) => {
+    try {
+        const students = await Student.find({}, 'classNumber');
+        const classNumbers = [...new Set(students.map(s => s.classNumber))];
+        res.json(classNumbers);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch class numbers' });
+    }
+};
 
 const updateStudent = async (req, res) => {
     const { id } = req.params
@@ -95,4 +107,4 @@ const deleteById = async (req, res) => {
     }
 }
 
-module.exports = { addStudent, getById, getAll, updateStudent, updateActive, deleteById }
+module.exports = { addStudent, getById, getAll, updateStudent, updateActive, deleteById, getAllClasses }

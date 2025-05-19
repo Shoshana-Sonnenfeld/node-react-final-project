@@ -15,7 +15,7 @@ export default function Layout({ children }) {
     const purple = "#542468"; // צבע סגול - צבע עיקרי
     const gray = "#58585a"; // צבע אפור - עבור רקע ה־Avatar
 
-    const username = useSelector(state => state.user.username) || 'User'; // קריאת שם המשתמש מה־Redux, או ברירת מחדל
+    const username = useSelector(state => state.user.username); // קריאת שם המשתמש מה־Redux, או ברירת מחדל
     const initials = username
         .split(' ')
         .map(word => word[0])
@@ -94,4 +94,6 @@ export default function Layout({ children }) {
         </div>
     );
 }
+
+
 
