@@ -1,145 +1,112 @@
-import React, { useEffect, useState } from 'react';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Card } from 'primereact/card';
+import React, { useState, useEffect } from 'react';
+import { Button } from 'primereact/button';
 import axios from 'axios';
+import AttendanceDialog from './AttendanceDialog';
+import LessonDialog from './LessonDialog';
 
-const days = [
+const ScheduleTable = ({ classNumber }) => {
+    const [schedule, setSchedule] = useState({});
+    const [showDialog, setShowDialog] = useState(false);
+    const [showAttendanceDialog, setShowAttendanceDialog] = useState(false);
+    const [selectedDay, setSelectedDay] = useState(null);
+    const [lessonIndex, setLessonIndex] = useState(null);
 
-    { key: 'sunday', label: 'sunday' },
-    { key: 'monday', label: 'monday' },
-    { key: 'tuesday', label: 'tuesday' },
-    { key: 'wednesday', label: 'wednesday' },
-    { key: 'thursday', label: 'thursday' },
-];
-
-const ScheduleTable = () => {
-    const [schedule, setSchedule] = useState([]);
+    const fetchSchedule = async () => {
+        try {
+            const response = await axios.get(`http://localhost:1235/api/schedule/getScheduleByClassNumber/${classNumber}`);
+            setSchedule(response.data);
+        } catch (error) {
+            console.error('Error fetching schedule:', error);
+        }
+    };
 
     useEffect(() => {
-        axios.get('http://localhost:1235/api/schedule/getSchedule') // שנה ל-API שלך
-            .then(res => {
-                const transformed = res.data.map(item => {
-                    const row = { classNumber: item.classNumber };
-                    days.forEach(day => {
-                        row[day.key] = item[day.key]?.lessons?.map((l, i) => `שיעור ${i + 1}`)?.join(', ') || '';
-                    });
-                    return row;
-                });
-                setSchedule(transformed);
-            })
-            .catch(err => console.error(err));
-    }, []);
+        fetchSchedule();
+    }, [classNumber]);
+
+    const handleEdit = (day, lessonIndex) => {
+        setSelectedDay(day);
+        setLessonIndex(lessonIndex);
+        setShowDialog(true);
+    };
+
+    const handleAttendance = (day, lessonIndex) => {
+        setSelectedDay(day);
+        setLessonIndex(lessonIndex);
+        setShowAttendanceDialog(true);
+    };
+
+    const renderSchedule = () => {
+        const days = [
+            { key: 'sunday', label: 'Sunday' },
+            { key: 'monday', label: 'Monday' },
+            { key: 'tuesday', label: 'Tuesday' },
+            { key: 'wednesday', label: 'Wednesday' },
+            { key: 'thursday', label: 'Thursday' },
+        ];
+
+        return (
+            <div style={{ overflowX: 'auto' }}>
+                <table style={{ borderCollapse: 'collapse', width: '100%', textAlign: 'center' }}>
+                    <thead>
+                        <tr>
+                            <th>Lesson</th>
+                            {days.map(day => (
+                                <th key={day.key}>{day.label}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {Array.from({ length: 8 }, (_, lessonIndex) => (
+                            <tr key={lessonIndex}>
+                                <td>Lesson {lessonIndex + 1}</td>
+                                {days.map(day => (
+                                    <td key={day.key}>
+                                        <div>
+                                            <span>{schedule[day.key]?.lessons?.[lessonIndex]?.name || 'No Lesson'}</span>
+                                            <Button
+                                                icon="pi pi-pencil"
+                                                className="p-button-text"
+                                                onClick={() => handleEdit(day.key, lessonIndex)}
+                                            />
+                                            <Button
+                                                label="Attendance"
+                                                className="p-button-text"
+                                                onClick={() => handleAttendance(day.key, lessonIndex)}
+                                            />
+                                        </div>
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
 
     return (
-        // <div className="p-d-flex p-jc-center p-mt-5" style={{ direction: 'rtl' }}>
-
-            <div
-            style={{
-                direction: 'rtl',
-                display: 'flex',
-                justifyContent: 'center',
-                paddingTop: '2rem',
-                backgroundColor: '#f8f8f8',
-                minHeight: '100vh'
-            }}            >
-
-                <Card style={{ width: '90%', boxShadow: '0 0 10px #ccc' }}>
-                    <h2 style={{ textAlign: 'center', color: '#4B296B', marginBottom: '2rem' }}>weekly Schedule</h2>
-
-                    <DataTable
-                        value={schedule}
-                        stripedRows
-                        paginator
-                        rows={5}
-                        style={{ fontFamily: 'Arial' }}
-                    >
-                        <Column field="classNumber" header="team" style={{ textAlign: 'center', color: '#4B296B' }}></Column>
-                        {days.map(day => (
-                            <Column
-                                key={day.key}
-                                field={day.key}
-                                header={day.label}
-                                style={{ textAlign: 'center', color: '#4B296B' }}
-                            />
-                        ))}
-                    </DataTable>
-                </Card>
-            </div>
-            );
+        <div>
+            <h2>Weekly Schedule</h2>
+            {renderSchedule()}
+            <LessonDialog
+                visible={showDialog}
+                onHide={() => setShowDialog(false)} // ודאי שהפונקציה מועברת כאן
+                selectedDay={selectedDay}
+                lessonIndex={lessonIndex}
+                schedule={schedule}
+                setSchedule={setSchedule}
+                classNumber={classNumber}
+            />
+            <AttendanceDialog
+                visible={showAttendanceDialog}
+                onHide={() => setShowAttendanceDialog(false)} // סגירת הדיאלוג
+                selectedDay={selectedDay}
+                lessonIndex={lessonIndex}
+                classNumber={classNumber}
+            />
+        </div>
+    );
 };
 
             export default ScheduleTable;
-
-// import React, { useEffect, useState } from 'react';
-// import { DataTable } from 'primereact/datatable';
-// import { Column } from 'primereact/column';
-// import { Card } from 'primereact/card';
-// import axios from 'axios';
-
-// const days = [
-
-//     { key: 'sunday', label: 'sunday' },
-//     { key: 'monday', label: 'monday' },
-//     { key: 'tuesday', label: 'tuesday' },
-//     { key: 'wednesday', label: 'wednesday' },
-//     { key: 'thursday', label: 'thursday' },
-// ];
-
-// const ScheduleTable = () => {
-//     const [schedule, setSchedule] = useState([]);
-
-//     useEffect(() => {
-//         axios.get('http://localhost:1235/api/schedule/getSchedule') // שנה ל-API שלך
-//             .then(res => {
-//                 const transformed = res.data.map(item => {
-//                     const row = { classNumber: item.classNumber };
-//                     days.forEach(day => {
-//                         row[day.key] = item[day.key]?.lessons?.map((l, i) => `שיעור ${i + 1}`)?.join(', ') || '';
-//                     });
-//                     return row;
-//                 });
-//                 setSchedule(transformed);
-//             })
-//             .catch(err => console.error(err));
-//     }, []);
-
-//     return (
-//         // <div className="p-d-flex p-jc-center p-mt-5" style={{ direction: 'rtl' }}>
-
-//             <div
-//             style={{
-//                 direction: 'rtl',
-//                 display: 'flex',
-//                 justifyContent: 'center',
-//                 paddingTop: '2rem',
-//                 backgroundColor: '#f8f8f8',
-//                 minHeight: '100vh'
-//             }}            >
-
-//                 <Card style={{ width: '90%', boxShadow: '0 0 10px #ccc' }}>
-//                     <h2 style={{ textAlign: 'center', color: '#4B296B', marginBottom: '2rem' }}>weekly Schedule</h2>
-
-//                     <DataTable
-//                         value={schedule}
-//                         stripedRows
-//                         paginator
-//                         rows={5}
-//                         style={{ fontFamily: 'Arial' }}
-//                     >
-//                         <Column field="classNumber" header="team" style={{ textAlign: 'center', color: '#4B296B' }}></Column>
-//                         {days.map(day => (
-//                             <Column
-//                                 key={day.key}
-//                                 field={day.key}
-//                                 header={day.label}
-//                                 style={{ textAlign: 'center', color: '#4B296B' }}
-//                             />
-//                         ))}
-//                     </DataTable>
-//                 </Card>
-//             </div>
-//             );
-// };
-
-//             export default ScheduleTable;

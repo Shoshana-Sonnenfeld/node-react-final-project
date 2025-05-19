@@ -47,17 +47,6 @@ const getAll = async (req, res) => {
     }
 }
 
-
-const getAllClasses = async (req, res) => {
-    try {
-        const students = await Student.find({}, 'classNumber');
-        const classNumbers = [...new Set(students.map(s => s.classNumber))];
-        res.json(classNumbers);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch class numbers' });
-    }
-};
-
 const updateStudent = async (req, res) => {
     const { id } = req.params
     const { name, idNumber, parentEmail, classNumber } = req.body
@@ -107,4 +96,15 @@ const deleteById = async (req, res) => {
     }
 }
 
-module.exports = { addStudent, getById, getAll, updateStudent, updateActive, deleteById, getAllClasses }
+
+const getStudentsWithAttendance = async (req, res) => {
+    try {
+        const students = await Student.find({}, 'name weeklyAttendance'); // שליפת שם ונוכחות בלבד
+        res.status(200).json(students);
+    } catch (error) {
+        console.error('Error fetching students with attendance:', error);
+        res.status(500).json({ message: 'Failed to fetch students with attendance' });
+    }
+};
+
+module.exports = { addStudent, getById, getAll, updateStudent, updateActive, deleteById , getStudentsWithAttendance}

@@ -34,7 +34,7 @@ const Login = () => {
             const token = response.data.accessToken;
 
             const decoded = jwtDecode(token);
-            const username = decoded.username || decoded.name || decoded.id || "User";
+            const username = decoded.username || decoded.name || decoded.id;
 
             localStorage.setItem("token", token);
             localStorage.setItem("username", username);

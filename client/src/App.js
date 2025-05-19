@@ -14,6 +14,8 @@ import HomePage from './components/HomePage';
 import ScheduleManagement from './components/schedule/ScheduleManagement'
 import StudentManagement from './components/students/StudentManagement';
 import TeachersManagement from './components/lessons/LessonsManagement';
+import AttendancePage from './components/students/AttendancePage';
+import { useRef } from 'react'; // ייבוא useRef     
 
 function App() {
     return (
@@ -29,6 +31,7 @@ function App() {
                     <Route path="/lessons" element={<Layout> <TeachersManagement /> </Layout>} />
                     <Route path="/students" element={<Layout> <StudentManagement /> </Layout>} />
                     <Route path="/homePage" element={<Layout> <HomePage /> </Layout>} />
+                    <Route path="/attendance" element={<Layout><AttendancePage /></Layout>} />
                 </Routes>
             </Router>
         </Provider>

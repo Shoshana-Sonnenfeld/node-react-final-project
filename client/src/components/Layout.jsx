@@ -26,7 +26,8 @@ export default function Layout({ children }) {
         { label: 'home page', icon: 'pi pi-home', path: '/homePage' },
         { label: 'students', icon: 'pi pi-users', path: '/students' },
         { label: 'lessons', icon: 'pi pi-book', path: '/lessons' },
-        { label: 'schedule', icon: 'pi pi-calendar', path: '/schedule' }
+        { label: 'schedule', icon: 'pi pi-calendar', path: '/schedule' },
+        { label: 'attendance', icon: 'pi pi-check-square', path: '/attendance' } // טאב חדש
     ];
 
     const activeIndex = items.findIndex(item => item.path === location.pathname); // קביעת הלשונית הפעילה לפי הנתיב הנוכחי
@@ -60,11 +61,11 @@ export default function Layout({ children }) {
             {/* סרגל עליון */}
             <div className="surface-100 px-3 py-2 flex justify-between align-items-center shadow-1">
                 <TabMenu
-                    model={items} // העברת הפריטים לטאב
-                    activeIndex={activeIndex >= 0 ? activeIndex : 0} // טאב פעיל
-                    onTabChange={(e) => navigate(items[e.index].path)} // פעולה בעת לחיצה על טאב - ניווט
-                    className="border-none" // הסרת גבול
-                    style={tabMenuStyles} // עיצוב מותאם
+                    model={items}
+                    activeIndex={activeIndex >= 0 ? activeIndex : 0}
+                    onTabChange={(e) => navigate(items[e.index].path)}
+                    className="border-none"
+                    style={tabMenuStyles}
                 />
 
                 {/* Avatar + תפריט קופץ */}
@@ -94,6 +95,3 @@ export default function Layout({ children }) {
         </div>
     );
 }
-
-
-
