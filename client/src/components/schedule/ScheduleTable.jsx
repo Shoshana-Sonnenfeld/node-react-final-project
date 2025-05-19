@@ -109,4 +109,4 @@ const ScheduleTable = ({ classNumber }) => {
     );
 };
 
-export default ScheduleTable;
+            export default ScheduleTable;

@@ -47,16 +47,6 @@ const getAll = async (req, res) => {
     }
 }
 
-const getAllClasses = async (req, res) => {
-    try {
-        const students = await Student.find({}, 'classNumber');
-        const classNumbers = [...new Set(students.map(s => s.classNumber))];
-        res.json(classNumbers);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch class numbers' });
-    }
-};
-
 const updateStudent = async (req, res) => {
     const { id } = req.params
     const { name, idNumber, parentEmail, classNumber } = req.body
@@ -106,99 +96,15 @@ const deleteById = async (req, res) => {
     }
 }
 
-const updateAttendanceForLesson = async (req, res) => {
-    const { classNumber, day, lessonId, attendanceUpdates } = req.body;
 
-    if (!classNumber || !day || !lessonId || !attendanceUpdates) {
-        return res.status(400).json({ message: "Class number, day, lesson ID, and attendance updates are required" });
-    }
-
+const getStudentsWithAttendance = async (req, res) => {
     try {
-        // שליפת כל התלמידות בכיתה
-        const students = await Student.find({ classNumber });
-
-        if (!students || students.length === 0) {
-            return res.status(404).json({ message: "No students found for this class" });
-        }
-
-        // עדכון סטטוס הנוכחות לכל תלמידה
-        for (const update of attendanceUpdates) {
-            const student = students.find(s => s.idNumber === update.idNumber);
-            if (student) {
-                const attendanceDay = student.weeklyAttendance[day];
-                if (attendanceDay) {
-                    const lesson = attendanceDay.find(l => l.lessonId.toString() === lessonId);
-                    if (lesson) {
-                        lesson.status = update.status; // עדכון הסטטוס
-                    } else {
-                        attendanceDay.push({ lessonId, status: update.status }); // הוספת שיעור חדש
-                    }
-                    await student.save();
-                }
-            }
-        }
-
-        res.status(200).json({ message: "Attendance updated successfully" });
-    } catch (err) {
-        console.error("Error updating attendance:", err);
-        res.status(500).json({ message: "Failed to update attendance", error: err });
-    }
-};
-
-const getStudentByClassNumber = async (req, res) => {
-    const { classNumber } = req.params;
-
-    if (!classNumber) {
-        return res.status(400).json({ message: "Class number is required" });
-    }
-
-    try {
-        const students = await Student.find({ classNumber });
-        if (!students || students.length === 0) {
-            return res.status(404).json({ message: "No students found for this class" });
-        }
-
+        const students = await Student.find({}, 'name weeklyAttendance'); // שליפת שם ונוכחות בלבד
         res.status(200).json(students);
-    } catch (err) {
-        console.error("Error fetching students:", err);
-        res.status(500).json({ message: "Failed to fetch students", error: err });
-    }
-
-
-};
-
-
-const getAttendanceByLesson = async (req, res) => {
-    const { classNumber, day, lessonId } = req.params;
-
-    if (!classNumber || !day || !lessonId) {
-        return res.status(400).json({ message: "Class number, day, and lesson ID are required" });
-    }
-
-    try {
-        // שליפת כל התלמידות בכיתה
-        const students = await Student.find({ classNumber });
-
-        if (!students || students.length === 0) {
-            return res.status(404).json({ message: "No students found for this class" });
-        }
-
-        // יצירת רשימה עם סטטוס הנוכחות לכל תלמידה
-        const attendanceData = students.map(student => {
-            const attendanceDay = student.weeklyAttendance[day] || [];
-            const lesson = attendanceDay.find(l => l.lessonId.toString() === lessonId);
-            return {
-                idNumber: student.idNumber,
-                name: student.name,
-                status: lesson ? lesson.status : 'Absent' // ברירת מחדל: 'Absent'
-            };
-        });
-
-        res.status(200).json(attendanceData);
-    } catch (err) {
-        console.error("Error fetching attendance:", err);
-        res.status(500).json({ message: "Failed to fetch attendance", error: err });
+    } catch (error) {
+        console.error('Error fetching students with attendance:', error);
+        res.status(500).json({ message: 'Failed to fetch students with attendance' });
     }
 };
 
-module.exports = { addStudent, getById, getAll, updateStudent, updateActive, deleteById, getAllClasses, updateAttendanceForLesson, getStudentByClassNumber, getAttendanceByLesson    }
+module.exports = { addStudent, getById, getAll, updateStudent, updateActive, deleteById , getStudentsWithAttendance}
