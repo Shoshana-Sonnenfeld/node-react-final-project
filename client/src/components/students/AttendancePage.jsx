@@ -36,7 +36,7 @@ const AttendancePage = () => {
 
         const attendanceData = days.map((day) => ({
             day,
-            lessons: selectedStudent.weeklyAttendance[day]
+            lessons: selectedStudent.weeklyAttendance[day] || [] // ודא ש-`lessons` הוא מערך
         }));
 
         return (
@@ -46,11 +46,15 @@ const AttendancePage = () => {
                     field="lessons"
                     header="Lessons"
                     body={(rowData) =>
-                        rowData.lessons.map((lesson, index) => (
-                            <div key={index}>
-                                Lesson ID: {lesson.lessonId}, Status: {lesson.status}
-                            </div>
-                        ))
+                        Array.isArray(rowData.lessons) ? (
+                            rowData.lessons.map((lesson, index) => (
+                                <div key={index}>
+                                    Lesson ID: {lesson.lessonId}, Status: {lesson.status}
+                                </div>
+                            ))
+                        ) : (
+                            <div>No lessons available</div>
+                        )
                     }
                 />
             </DataTable>
