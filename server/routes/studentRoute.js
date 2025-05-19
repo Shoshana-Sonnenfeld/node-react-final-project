@@ -35,4 +35,3 @@ router.get("/getAttendanceByLesson/:classNumber/:day/:lessonId", verifyJWT, Stud
 
 module.exports = router
 
-module.exports = { addStudent, getById, getAll, updateStudent, updateActive, deleteById, getAllClasses, updateAttendanceForLesson, getStudentByClassNumber }
