@@ -5,7 +5,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import Axios from 'axios';
 
-const AttendancePage = () => {
+const Attendance = () => {
     const [allStudents, setAllStudents] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
@@ -78,13 +78,18 @@ const AttendancePage = () => {
     };
 
     const handleSendWeeklyAttendanceEmails = async () => {
-        const token = localStorage.getItem("token");
-        await Axios.post('http://localhost:1235/api/student/sendWeeklyAttendanceEmails', null, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        // You might want to add some notification or feedback to the user here
+        try {
+            const token = localStorage.getItem("token");
+            await Axios.post(
+                'http://localhost:1235/api/student/sendWeeklyAttendanceEmails',
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert("המיילים נשלחו בהצלחה לכל ההורים!");
+        } catch (error) {
+            alert("אירעה שגיאה בשליחת המיילים.");
+            console.error(error);
+        }
     };
 
     return (
@@ -93,7 +98,7 @@ const AttendancePage = () => {
                 <Button
                     label="שלח נוכחות שבועית לכל ההורים"
                     icon="pi pi-send"
-                    style={{ backgroundColor: '#542468', borderColor: '#542468', color: '#fff' }}
+                    style={{ backgroundColor: '#542468', borderColor: '#542468', color: '#fff', marginBottom: '1rem' }}
                     onClick={handleSendWeeklyAttendanceEmails}
                 />
             </div>
@@ -136,4 +141,4 @@ const AttendancePage = () => {
     );
 };
 
-export default AttendancePage;
+export default Attendance;

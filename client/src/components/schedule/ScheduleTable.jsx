@@ -3,6 +3,7 @@ import { Button } from 'primereact/button';
 import axios from 'axios';
 import AttendanceDialog from './AttendanceDialog';
 import LessonDialog from './LessonDialog';
+import './schedule.css';
 
 const ScheduleTable = ({ classNumber }) => {
     const [schedule, setSchedule] = useState({});
@@ -36,19 +37,19 @@ const ScheduleTable = ({ classNumber }) => {
         setShowAttendanceDialog(true);
     };
 
-    const renderSchedule = () => {
-        const days = [
-            { key: 'sunday', label: 'Sunday' },
-            { key: 'monday', label: 'Monday' },
-            { key: 'tuesday', label: 'Tuesday' },
-            { key: 'wednesday', label: 'Wednesday' },
-            { key: 'thursday', label: 'Thursday' },
-        ];
+    const days = [
+        { key: 'sunday', label: 'Sunday' },
+        { key: 'monday', label: 'Monday' },
+        { key: 'tuesday', label: 'Tuesday' },
+        { key: 'wednesday', label: 'Wednesday' },
+        { key: 'thursday', label: 'Thursday' },
+    ];
 
-        return (
-            <div style={{ overflowX: 'auto' }}>
-                <table style={{ borderCollapse: 'collapse', width: '100%', textAlign: 'center' }}>
-                    <thead>
+    return (
+        <div style={{ padding: '1rem' }}>
+            <div style={{ overflowX: 'auto', borderRadius: '12px', boxShadow: '0 0 8px rgba(0,0,0,0.1)' }}>
+                <table className="schedule-table">
+                    <thead style={{ backgroundColor: '#542468', color: '#fff' }}>
                         <tr>
                             <th>Lesson</th>
                             {days.map(day => (
@@ -61,19 +62,25 @@ const ScheduleTable = ({ classNumber }) => {
                             <tr key={lessonIndex}>
                                 <td>Lesson {lessonIndex + 1}</td>
                                 {days.map(day => (
-                                    <td key={day.key}>
-                                        <div>
-                                            <span>{schedule[day.key]?.lessons?.[lessonIndex]?.name || 'No Lesson'}</span>
-                                            <Button
-                                                icon="pi pi-pencil"
-                                                className="p-button-text"
-                                                onClick={() => handleEdit(day.key, lessonIndex)}
-                                            />
-                                            <Button
-                                                label="Attendance"
-                                                className="p-button-text"
-                                                onClick={() => handleAttendance(day.key, lessonIndex)}
-                                            />
+                                    <td key={day.key} className="schedule-cell">
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', alignItems: 'center' }}>
+                                            <span style={{ fontWeight: 500 }}>
+                                                {schedule[day.key]?.lessons?.[lessonIndex]?.name || 'No Lesson'}
+                                            </span>
+                                            <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                                <Button
+                                                    icon="pi pi-pencil"
+                                                    className="p-button-rounded p-button-sm"
+                                                    style={{ backgroundColor: '#542468', borderColor: '#542468', color: '#fff' }}
+                                                    onClick={() => handleEdit(day.key, lessonIndex)}
+                                                />
+                                                <Button
+                                                    label="Attendance"
+                                                    className="p-button-outlined p-button-sm"
+                                                    style={{ color: '#542468', borderColor: '#542468' }}
+                                                    onClick={() => handleAttendance(day.key, lessonIndex)}
+                                                />
+                                            </div>
                                         </div>
                                     </td>
                                 ))}
@@ -82,16 +89,10 @@ const ScheduleTable = ({ classNumber }) => {
                     </tbody>
                 </table>
             </div>
-        );
-    };
 
-    return (
-        <div>
-            <h2>Weekly Schedule</h2>
-            {renderSchedule()}
             <LessonDialog
                 visible={showDialog}
-                onHide={() => setShowDialog(false)} // ודאי שהפונקציה מועברת כאן
+                onHide={() => setShowDialog(false)}
                 selectedDay={selectedDay}
                 lessonIndex={lessonIndex}
                 schedule={schedule}
@@ -100,13 +101,14 @@ const ScheduleTable = ({ classNumber }) => {
             />
             <AttendanceDialog
                 visible={showAttendanceDialog}
-                onHide={() => setShowAttendanceDialog(false)} // סגירת הדיאלוג
+                onHide={() => setShowAttendanceDialog(false)}
                 selectedDay={selectedDay}
                 lessonIndex={lessonIndex}
                 classNumber={classNumber}
+                schedule={schedule}
             />
         </div>
     );
 };
 
-            export default ScheduleTable;
+export default ScheduleTable;

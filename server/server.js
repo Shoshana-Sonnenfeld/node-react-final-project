@@ -10,7 +10,7 @@ const corsOptions = require("./config/corsOptions")
 const connectDB = require("./config/dbconn")
 
 // הגדרות כלליות
-const PORT = process.env.PORT || 1234
+const PORT = process.env.PORT || 1235
 const app = express()
 
 // התחברות למסד נתונים

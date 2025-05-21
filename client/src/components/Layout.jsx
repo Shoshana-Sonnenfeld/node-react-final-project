@@ -5,7 +5,7 @@ import { Avatar } from 'primereact/avatar'; // קומפוננטת Avatar (עיג
 import { Menu } from 'primereact/menu'; // קומפוננטת תפריט קופץ
 import { useSelector } from 'react-redux'; // לקריאת מידע מה־Redux store
 import logo from "../assets/logo.png"; // ייבוא של הלוגו שבתחתית העמוד
-import './Layout.css'; // קובץ CSS חיצוני לעיצוב מותאם
+import '../layout.css'; // קובץ CSS חיצוני לעיצוב מותאם
 
 export default function Layout({ children }) {
     const navigate = useNavigate(); // פונקציה לניווט בין דפים
@@ -15,7 +15,7 @@ export default function Layout({ children }) {
     const purple = "#542468"; // צבע סגול - צבע עיקרי
     const gray = "#58585a"; // צבע אפור - עבור רקע ה־Avatar
 
-    const username = useSelector(state => state.user.username); // קריאת שם המשתמש מה־Redux, או ברירת מחדל
+    const username = useSelector(state => state.user.username) || 'User'; // קריאת שם המשתמש מה־Redux, או ברירת מחדל
     const initials = username
         .split(' ')
         .map(word => word[0])
@@ -27,7 +27,7 @@ export default function Layout({ children }) {
         { label: 'students', icon: 'pi pi-users', path: '/students' },
         { label: 'lessons', icon: 'pi pi-book', path: '/lessons' },
         { label: 'schedule', icon: 'pi pi-calendar', path: '/schedule' },
-        { label: 'attendance', icon: 'pi pi-check-square', path: '/attendance' } // טאב חדש
+        { label: 'attendance', icon: 'pi pi-list-check', path: '/attendance' }
     ];
 
     const activeIndex = items.findIndex(item => item.path === location.pathname); // קביעת הלשונית הפעילה לפי הנתיב הנוכחי
@@ -61,11 +61,11 @@ export default function Layout({ children }) {
             {/* סרגל עליון */}
             <div className="surface-100 px-3 py-2 flex justify-between align-items-center shadow-1">
                 <TabMenu
-                    model={items}
-                    activeIndex={activeIndex >= 0 ? activeIndex : 0}
-                    onTabChange={(e) => navigate(items[e.index].path)}
-                    className="border-none"
-                    style={tabMenuStyles}
+                    model={items} // העברת הפריטים לטאב
+                    activeIndex={activeIndex >= 0 ? activeIndex : 0} // טאב פעיל
+                    onTabChange={(e) => navigate(items[e.index].path)} // פעולה בעת לחיצה על טאב - ניווט
+                    className="border-none" // הסרת גבול
+                    style={tabMenuStyles} // עיצוב מותאם
                 />
 
                 {/* Avatar + תפריט קופץ */}

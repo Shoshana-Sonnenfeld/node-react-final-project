@@ -8,18 +8,18 @@ import { Provider } from 'react-redux';  // ייבוא ה-Provider
 import store from './store/store';  // ייבוא ה-store
 
 import Layout from './components/Layout';
-import Login from './components/Login';
-import Register from './components/Register';
+import Login from './components/Login'; // וודאי שזה הנתיב הנכון
+import Register from './components/Register'; // וודאי שזה הנתיב הנכון
 import HomePage from './components/HomePage';
-import ScheduleManagement from './components/schedule/ScheduleManagement'
+import ScheduleManagement from './components/schedule/ScheduleManagement';
 import StudentManagement from './components/students/StudentManagement';
-import TeachersManagement from './components/lessons/LessonsManagement';
-import AttendancePage from './components/students/AttendancePage';
-import { useRef } from 'react'; // ייבוא useRef     
+import LessonsManagement from './components/lessons/LessonsManagement';
+import InsertLesson from './components/schedule/InsertLesson';
+import Attendance from './components/attendance/Attendance';
 
 function App() {
     return (
-        <Provider store={store}>  {/* עטיפת כל האפליקציה ב-Provider */}
+        <Provider store={store}>
             <Router>
                 <Routes>
                     {/* עמוד login ללא Layout */}
@@ -27,14 +27,33 @@ function App() {
                     <Route path="/register" element={<Register />} />
 
                     {/* דפים אחרים עם Layout */}
-                    <Route path="/schedule" element={<Layout> <ScheduleManagement /> </Layout>} />
-                    <Route path="/lessons" element={<Layout> <TeachersManagement /> </Layout>} />
-                    <Route path="/students" element={<Layout> <StudentManagement /> </Layout>} />
-                    <Route path="/homePage" element={<Layout> <HomePage /> </Layout>} />
-                    <Route path="/attendance" element={<Layout><AttendancePage /></Layout>} />
+                    <Route
+                        path="/schedule"
+                        element={<Layout> <ScheduleManagement /> </Layout>}
+                    />
+                    <Route
+                        path="/lessons"
+                        element={<Layout> <LessonsManagement /> </Layout>}
+                    />
+                    <Route
+                        path="/students"
+                        element={<Layout> <StudentManagement /> </Layout>}
+                    />
+                    <Route
+                        path="/homePage"
+                        element={<Layout> <HomePage /> </Layout>}
+                    />
+                    <Route
+                        path="/insert-lesson"
+                        element={<Layout> <InsertLesson /> </Layout>}
+                    />
+                    <Route
+                        path="/attendance"
+                        element={<Layout> <Attendance /> </Layout>}
+                    />
                 </Routes>
             </Router>
-        </Provider>
+        </Provider >
     );
 }
 

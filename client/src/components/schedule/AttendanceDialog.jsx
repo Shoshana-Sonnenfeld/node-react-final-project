@@ -1,22 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import axios from 'axios';
 
-const AttendanceDialog = ({ visible, onHide, selectedDay, lessonIndex, classNumber }) => {
+const AttendanceDialog = ({ visible, onHide, selectedDay, lessonIndex, classNumber, schedule }) => {
     const [students, setStudents] = useState([]);
     const [attendance, setAttendance] = useState([]);
 
+    const lessonId = schedule[selectedDay]?.lessons?.[lessonIndex]?._id;
+
     const fetchStudents = async () => {
         try {
-            const response = await axios.get(`http://localhost:1235/api/student/getStudentByClassNumber/${classNumber}`);
+            const response = await axios.get(
+                `http://localhost:1235/api/student/getAttendanceByLesson/${classNumber}/${selectedDay}/${lessonId}`
+            );
             setStudents(response.data);
             setAttendance(response.data.map(student => ({
                 idNumber: student.idNumber,
-                status: 'Absent', // ברירת מחדל
+                status: student.status,
             })));
         } catch (error) {
-            console.error('Error fetching students:', error);
+            console.error('Error fetching attendance:', error);
         }
     };
 
@@ -33,15 +37,32 @@ const AttendanceDialog = ({ visible, onHide, selectedDay, lessonIndex, classNumb
     };
 
     const handleSaveAttendance = () => {
-        axios.put('http://localhost:1235/api/student/updateAttendance', {
+        if (!lessonId) {
+            alert('לא נבחר שיעור או שאין מזהה לשיעור!');
+        }
+        // לוגים לבדיקה
+        console.log({
             classNumber,
             day: selectedDay,
-            lessonId: lessonIndex,
+            lessonId,
+            attendanceUpdates: attendance,
+        });
+        console.log('schedule:', schedule);
+        console.log('selectedDay:', selectedDay);
+        console.log('lessonIndex:', lessonIndex);
+        console.log('schedule[selectedDay]:', schedule[selectedDay]);
+        console.log('schedule[selectedDay]?.lessons:', schedule[selectedDay]?.lessons);
+        console.log('lesson:', schedule[selectedDay]?.lessons?.[lessonIndex]);
+
+        axios.put('http://localhost:1235/api/student/updateAttendanceForLesson', {
+            classNumber,
+            day: selectedDay,
+            lessonId,
             attendanceUpdates: attendance,
         })
             .then(() => {
                 console.log('Attendance saved successfully');
-                onHide(); // סגירת הדיאלוג
+                onHide();
             })
             .catch(err => {
                 console.error('Error updating attendance:', err);

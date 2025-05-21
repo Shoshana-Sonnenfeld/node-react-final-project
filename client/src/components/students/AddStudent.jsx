@@ -43,12 +43,10 @@ export default function AddStudent({ fetchStudents, setActiveComponent }) {
         <div style={{
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'flex-start',
-            minHeight: '100vh',
-            paddingTop: '3rem',
+            paddingTop: '1rem',
+            paddingBottom: '1rem',
             backgroundColor: '#FFFFFF',
         }}>
-
             <div style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: '12px',
@@ -100,9 +98,9 @@ export default function AddStudent({ fetchStudents, setActiveComponent }) {
                     </div>
 
                     <div className="flex justify-center">
-                        <Button label="Add"
-                            // icon="pi pi-check" 
-                            onClick={handleAddStudent} style={buttonStyle} />
+                        <Button label="Add" 
+                        // icon="pi pi-check" 
+                        onClick={handleAddStudent} style={buttonStyle} />
                     </div>
                 </div>
             </div>

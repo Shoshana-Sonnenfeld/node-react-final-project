@@ -32,12 +32,10 @@ const UpdateStudent = ({ fetchStudents, student, setActiveComponent }) => {
         <div style={{
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'flex-start',
-            minHeight: '100vh',
-            paddingTop: '3rem',
+            paddingTop: '1rem',
+            paddingBottom: '1rem',
             backgroundColor: '#FFFFFF',
         }}>
-
             <div style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: '12px',
