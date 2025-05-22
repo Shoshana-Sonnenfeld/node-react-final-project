@@ -15,6 +15,7 @@ const ScheduleTable = ({ classNumber }) => {
     const fetchSchedule = async () => {
         try {
             const response = await axios.get(`http://localhost:1235/api/schedule/getScheduleByClassNumber/${classNumber}`);
+            console.log('Fetched schedule:', response.data); // הוסיפי לוג כאן
             setSchedule(response.data);
         } catch (error) {
             console.error('Error fetching schedule:', error);
@@ -98,6 +99,7 @@ const ScheduleTable = ({ classNumber }) => {
                 schedule={schedule}
                 setSchedule={setSchedule}
                 classNumber={classNumber}
+                refreshSchedule={fetchSchedule} // חשוב!
             />
             <AttendanceDialog
                 visible={showAttendanceDialog}

@@ -4,9 +4,20 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import axios from 'axios';
 
-const LessonDialog = ({ visible, onHide, selectedDay, lessonIndex, schedule, setSchedule, classNumber }) => {
+const LessonDialog = ({
+    visible,
+    onHide,
+    selectedDay,
+    lessonIndex,
+    schedule,
+    setSchedule,
+    classNumber,
+    refreshSchedule
+}) => {
     const [lessons, setLessons] = useState([]);
     const [selectedLesson, setSelectedLesson] = useState(null);
+
+    const purpleColor = '#542468';
 
     useEffect(() => {
         if (visible) {
@@ -20,43 +31,97 @@ const LessonDialog = ({ visible, onHide, selectedDay, lessonIndex, schedule, set
         }
     }, [visible]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!selectedLesson) return;
-        const updatedSchedule = { ...schedule };
 
-        if (!updatedSchedule[selectedDay]) {
-            updatedSchedule[selectedDay] = { lessons: [] };
+        try {
+            await axios.put('http://localhost:1235/api/schedule/updateLessonInSchedule', {
+                classNumber,
+                day: selectedDay,
+                lessonIndex,
+                lessonId: selectedLesson._id
+            });
+            if (refreshSchedule) refreshSchedule();
+        } catch (err) {
+            console.error('Error saving lesson:', err);
         }
-        updatedSchedule[selectedDay].lessons[lessonIndex] = selectedLesson;
 
-        setSchedule(updatedSchedule);
         onHide();
     };
 
     return (
         <Dialog
-            header={`בחר שיעור - ${selectedDay}, שיעור ${lessonIndex + 1}`}
             visible={visible}
             onHide={onHide}
-            style={{ width: '30vw' }}
-            footer={
-                <div>
-                    <Button label="ביטול" icon="pi pi-times" onClick={onHide} className="p-button-text" />
-                    <Button label="שמור" icon="pi pi-check" onClick={handleSave} autoFocus disabled={!selectedLesson} />
-                </div>
-            }
+            modal
+            closable={false}
+            style={{
+                width: '100%',
+                maxWidth: '500px',
+                borderRadius: '12px',
+                overflow: 'hidden'
+            }}
+            contentStyle={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '12px',
+                padding: '2rem',
+                position: 'relative',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+            }}
         >
-            <div className="p-field">
-                <label htmlFor="lessonDropdown">בחר שיעור</label>
-                <Dropdown
-                    id="lessonDropdown"
-                    value={selectedLesson}
-                    options={lessons}
-                    onChange={e => setSelectedLesson(e.value)}
-                    optionLabel="name"
-                    placeholder="בחר שיעור"
-                    style={{ width: '100%' }}
-                />
+            {/* Close Button */}
+            <Button
+                icon="pi pi-times"
+                onClick={onHide}
+                className="p-button-rounded p-button-text"
+                style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    color: purpleColor,
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    fontSize: '1.2rem'
+                }}
+            />
+
+            <h3 style={{ color: purpleColor, fontWeight: 'bold', marginTop: 0 }}>
+                {`Choose Lesson - ${selectedDay}, Lesson ${lessonIndex }`}
+            </h3>
+
+            <div className="p-fluid">
+                <div className="mb-4">
+                    <label className="block font-bold mb-2" style={{ color: purpleColor }}>
+                        Select a lesson
+                    </label>
+                    <Dropdown
+                        value={selectedLesson}
+                        options={lessons}
+                        onChange={e => setSelectedLesson(e.value)}
+                        optionLabel="name"
+                        placeholder="Select a lesson"
+                        style={{ width: '100%' }}
+                    />
+                </div>
+
+                <div className="flex justify-between mt-4">
+                    <Button
+                        label="Cancel"
+                        onClick={onHide}
+                        className="p-button-text"
+                        style={{ color: '#6b6b6b', borderColor: '#ccc' }}
+                    />
+                    <Button
+                        label="Save"
+                        onClick={handleSave}
+                        disabled={!selectedLesson}
+                        style={{
+                            backgroundColor: purpleColor,
+                            borderColor: purpleColor,
+                            color: '#FFFFFF'
+                        }}
+                    />
+                </div>
             </div>
         </Dialog>
     );

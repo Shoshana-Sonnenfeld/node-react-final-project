@@ -109,7 +109,7 @@ const updateSchedule = async (req, res) => {
 
         return res.status(200).json({ message: 'Schedule updated' });
     } catch (err) {
-        console.error('Error updating schedule:', err);
+        console.error('Update schedule error:', err); // הוסיפי שורה זו
         return res.status(500).json({ message: 'Update failed', error: err });
     }
 };
@@ -135,6 +135,40 @@ const updateOneDaySchedule = async (req, res) => {
     }
 };
 
+const updateLessonInSchedule = async (req, res) => {
+    const { classNumber, day, lessonIndex, lessonId } = req.body;
+
+    if (!classNumber || !day || lessonIndex === undefined || !lessonId) {
+        return res.status(400).json({ message: 'classNumber, day, lessonIndex, and lessonId are required' });
+    }
+
+    try {
+        const weeklySchedule = await WeeklySchedule.findOne({ classNumber });
+        if (!weeklySchedule) {
+            return res.status(404).json({ message: 'Schedule not found' });
+        }
+
+        // ודא שיש מערך שיעורים ליום הזה
+        if (!weeklySchedule[day] || !Array.isArray(weeklySchedule[day].lessons)) {
+            weeklySchedule[day] = { lessons: [] };
+        }
+
+        // הרחב את המערך אם צריך
+        while (weeklySchedule[day].lessons.length <= lessonIndex) {
+            weeklySchedule[day].lessons.push(null);
+        }
+
+        // עדכן את השיעור במקום הנכון
+        weeklySchedule[day].lessons[lessonIndex] = lessonId;
+
+        await weeklySchedule.save();
+        res.status(200).json({ message: 'Lesson updated in schedule' });
+    } catch (err) {
+        console.error('Update single lesson error:', err);
+        res.status(500).json({ message: 'Update failed', error: err });
+    }
+};
+
 const deleteSchedule = async (req, res) => {
     const { classNumber } = req.body;
 
@@ -153,4 +187,4 @@ const deleteSchedule = async (req, res) => {
     }
 };
 
-module.exports = { createSchedule, getSchedule,oneDaySchedule, updateSchedule, updateOneDaySchedule, deleteSchedule, getScheduleByClassNumber };
+module.exports = { createSchedule, getSchedule, oneDaySchedule, updateSchedule, updateOneDaySchedule, updateLessonInSchedule, deleteSchedule, getScheduleByClassNumber };

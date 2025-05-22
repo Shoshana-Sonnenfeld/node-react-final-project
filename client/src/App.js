@@ -14,7 +14,6 @@ import HomePage from './components/HomePage';
 import ScheduleManagement from './components/schedule/ScheduleManagement';
 import StudentManagement from './components/students/StudentManagement';
 import LessonsManagement from './components/lessons/LessonsManagement';
-import InsertLesson from './components/schedule/InsertLesson';
 import Attendance from './components/attendance/Attendance';
 
 function App() {
@@ -42,10 +41,6 @@ function App() {
                     <Route
                         path="/homePage"
                         element={<Layout> <HomePage /> </Layout>}
-                    />
-                    <Route
-                        path="/insert-lesson"
-                        element={<Layout> <InsertLesson /> </Layout>}
                     />
                     <Route
                         path="/attendance"

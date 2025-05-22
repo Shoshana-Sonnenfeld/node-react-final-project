@@ -120,7 +120,7 @@ const Register = () => {
                         OR
                     </Divider>
 
-                    <a href="/login">
+                    <a href="/">
                         <Button
                             label="Back to Login"
                             className="w-full p-button-outlined"
