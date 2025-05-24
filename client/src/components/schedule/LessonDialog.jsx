@@ -40,6 +40,10 @@ const LessonDialog = ({
                 day: selectedDay,
                 lessonIndex,
                 lessonId: selectedLesson._id
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
             });
             if (refreshSchedule) refreshSchedule();
         } catch (err) {

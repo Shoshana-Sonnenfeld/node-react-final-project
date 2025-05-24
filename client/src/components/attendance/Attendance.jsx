@@ -32,32 +32,55 @@ const Attendance = () => {
     const renderAttendanceTable = () => {
         if (!selectedStudent || !selectedStudent.weeklyAttendance) return null;
 
-        const days = Object.keys(selectedStudent.weeklyAttendance);
+        // סדר הימים
+        const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday'];
+        const dayLabels = {
+            sunday: 'Sunday',
+            monday: 'Monday',
+            tuesday: 'Tuesday',
+            wednesday: 'Wednesday',
+            thursday: 'Thursday'
+        };
 
-        const attendanceData = days.map((day) => ({
-            day,
-            lessons: selectedStudent.weeklyAttendance[day] || [] // ודא ש-`lessons` הוא מערך
-        }));
+        // נבנה מערך דו־ממדי: rows = שיעורים (1–8), columns = ימים
+        const numLessons = 8;
 
         return (
-            <DataTable value={attendanceData} responsiveLayout="scroll">
-                <Column field="day" header="Day" />
-                <Column
-                    field="lessons"
-                    header="Lessons"
-                    body={(rowData) =>
-                        Array.isArray(rowData.lessons) ? (
-                            rowData.lessons.map((lesson, index) => (
-                                <div key={index}>
-                                    Lesson ID: {lesson.lessonId}, Status: {lesson.status}
-                                </div>
-                            ))
-                        ) : (
-                            <div>No lessons available</div>
-                        )
-                    }
-                />
-            </DataTable>
+            <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff' }}>
+                <thead>
+                    <tr>
+                        <th style={{ border: '1px solid #ccc', padding: '8px', background: '#eee' }}>Lesson #</th>
+                        {days.map(day => (
+                            <th key={day} style={{ border: '1px solid #ccc', padding: '8px', background: '#eee' }}>
+                                {dayLabels[day]}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {Array.from({ length: numLessons }, (_, lessonIdx) => (
+                        <tr key={lessonIdx}>
+                            <td style={{ border: '1px solid #ccc', padding: '8px', fontWeight: 600 }}>
+                                {lessonIdx + 1}
+                            </td>
+                            {days.map(day => {
+                                const lesson = selectedStudent.weeklyAttendance[day]?.[lessonIdx];
+                                return (
+                                    <td key={day} style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>
+                                        {lesson
+                                            ? <>
+                                                <div>Lesson: {lesson.lessonName || lesson.name || ''}</div>
+                                                <div>Status: {lesson.status}</div>
+                                            </>
+                                            : <span style={{ color: '#bbb' }}>—</span>
+                                        }
+                                    </td>
+                                );
+                            })}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         );
     };
 

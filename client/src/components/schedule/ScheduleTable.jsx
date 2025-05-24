@@ -15,7 +15,7 @@ const ScheduleTable = ({ classNumber }) => {
     const fetchSchedule = async () => {
         try {
             const response = await axios.get(`http://localhost:1235/api/schedule/getScheduleByClassNumber/${classNumber}`);
-            console.log('Fetched schedule:', response.data); // הוסיפי לוג כאן
+            // console.log('Fetched schedule:', response.data); // הוסיפי לוג כאן
             setSchedule(response.data);
         } catch (error) {
             console.error('Error fetching schedule:', error);
@@ -38,6 +38,23 @@ const ScheduleTable = ({ classNumber }) => {
         setShowAttendanceDialog(true);
     };
 
+    // פונקציית איפוס מערכת
+    const handleResetSchedule = async () => {
+        if (!window.confirm("האם את בטוחה שברצונך לאפס את המערכת?")) return;
+        try {
+            await axios.delete('http://localhost:1235/api/schedule/deleteSchedule', {
+                data: { classNumber },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            fetchSchedule(); // רענון המערכת לאחר מחיקה
+        } catch (err) {
+            alert("אירעה שגיאה באיפוס המערכת");
+            console.error(err);
+        }
+    };
+
     const days = [
         { key: 'sunday', label: 'Sunday' },
         { key: 'monday', label: 'Monday' },
@@ -48,6 +65,15 @@ const ScheduleTable = ({ classNumber }) => {
 
     return (
         <div style={{ padding: '1rem' }}>
+            {/* כפתור איפוס מערכת */}
+            <div style={{ marginBottom: '1rem', textAlign: 'left' }}>
+                <Button
+                    label="איפוס מערכת"
+                    icon="pi pi-refresh"
+                    className="p-button-danger"
+                    onClick={handleResetSchedule}
+                />
+            </div>
             <div style={{ overflowX: 'auto', borderRadius: '12px', boxShadow: '0 0 8px rgba(0,0,0,0.1)' }}>
                 <table className="schedule-table">
                     <thead style={{ backgroundColor: '#542468', color: '#fff' }}>

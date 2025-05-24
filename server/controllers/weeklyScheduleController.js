@@ -9,7 +9,15 @@ const createSchedule = async (req, res) => {
     }
 
     try {
-        const schedule = await WeeklySchedule.create({ classNumber });
+        const emptyLessons = Array(8).fill(null);
+        const schedule = await WeeklySchedule.create({
+            classNumber,
+            sunday: { lessons: [...emptyLessons] },
+            monday: { lessons: [...emptyLessons] },
+            tuesday: { lessons: [...emptyLessons] },
+            wednesday: { lessons: [...emptyLessons] },
+            thursday: { lessons: [...emptyLessons] }
+        });
         return res.status(201).json(schedule);
     } catch (err) {
         return res.status(500).json({ message: 'Failed to create schedule', error: err });
@@ -19,18 +27,31 @@ const createSchedule = async (req, res) => {
 const getScheduleByClassNumber = async (req, res) => {
     const { classNumber } = req.params;
     try {
-        const schedule = await WeeklySchedule.findOne({ classNumber })
+        let schedule = await WeeklySchedule.findOne({ classNumber })
             .populate('sunday.lessons')
             .populate('monday.lessons')
             .populate('tuesday.lessons')
             .populate('wednesday.lessons')
             .populate('thursday.lessons');
 
-        console.log('Fetched schedule:', schedule); // לוג לנתונים שנשלפים
-
         if (!schedule) {
-            return res.status(404).json({ message: 'Schedule not found' });
+            const emptyLessons = Array(8).fill(null);
+            schedule = await WeeklySchedule.create({
+                classNumber,
+                sunday: { lessons: [...emptyLessons] },
+                monday: { lessons: [...emptyLessons] },
+                tuesday: { lessons: [...emptyLessons] },
+                wednesday: { lessons: [...emptyLessons] },
+                thursday: { lessons: [...emptyLessons] }
+            });
+            schedule = await WeeklySchedule.findOne({ classNumber })
+                .populate('sunday.lessons')
+                .populate('monday.lessons')
+                .populate('tuesday.lessons')
+                .populate('wednesday.lessons')
+                .populate('thursday.lessons');
         }
+
         res.status(200).json(schedule);
     } catch (err) {
         console.error('Error fetching schedule:', err);

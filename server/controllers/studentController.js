@@ -314,6 +314,21 @@ const addStudent = async (req, res) => {
     }
 }
 
+// const getAllClasses = async (req, res) => {
+//     try {
+//         // שליפת מספרי הכיתות מתוך אוסף התלמידות
+//         const students = await Student.find({}, 'classNumber');
+//         const classNumbers = [...new Set(students.map(student => student.classNumber))];
+
+//         console.log('Class numbers fetched from students:', classNumbers); // בדוק את הנתונים
+//         res.json(classNumbers);
+//     } catch (error) {
+//         console.error('Error fetching class numbers from students:', error);
+//         res.status(500).json({ error: 'Failed to fetch class numbers' });
+//     }
+//     console.log('getAllClasses endpoint hit');
+// };
+
 const getAllClasses = async (req, res) => {
     try {
         // שליפת מספרי הכיתות מתוך אוסף התלמידות
@@ -485,87 +500,6 @@ const getAttendanceByLesson = async (req, res) => {
         res.status(500).json({ message: "Failed to fetch attendance", error: err });
     }
 };
-
-
-// const sendWeeklyAttendanceEmails = async (req, res) => {
-//     try {
-//         const students = await Student.find({ active: true });
-
-//         // הגדרת טרנספורטר (הכניסי פרטי SMTP אמיתיים)
-//         const transporter = nodemailer.createTransport({
-//             service: "gmail",
-//             auth: {
-//                 user: process.env.EMAIL_USER,
-//                 pass: process.env.EMAIL_PASS
-//             }
-//         });
-
-//         for (const student of students) {
-//             // יצירת PDF בזיכרון
-//             const doc = new PDFDocument({ margin: 30, size: 'A4' });
-//             let buffers = [];
-//             doc.on('data', buffers.push.bind(buffers));
-//             doc.on('end', async () => {
-//                 const pdfData = Buffer.concat(buffers);
-
-//                 // שליחת המייל
-//                 await transporter.sendMail({
-//                     from: process.env.EMAIL_USER,
-//                     to: student.parentEmail,
-//                     subject: `Weekly Attendance Report for ${student.name}`,
-//                     text: `Hello,\nAttached is a PDF file with the weekly attendance summary for your child ${student.name}.`,
-//                     attachments: [
-//                         {
-//                             filename: `attendance_${student.name}.pdf`,
-//                             content: pdfData
-//                         }
-//                     ]
-//                 });
-//             });
-
-//             // כותרת
-//             doc.font('Helvetica');
-//             doc.fontSize(18).text(`Weekly Attendance Report - ${student.name}`, { align: 'left' });
-//             doc.moveDown();
-
-//             // טבלה
-//             doc.fontSize(14);
-//             const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
-//             doc.text('Day', 50, doc.y, { continued: true });
-//             doc.text('Lesson', 150, doc.y, { continued: true });
-//             doc.text('Status', 250, doc.y);
-//             doc.moveDown(0.5);
-//             days.forEach((day, i) => {
-//                 const lessons = student.weeklyAttendance?.[day.toLowerCase()] || [];
-//                 if (lessons.length === 0) {
-//                     doc.text(day, 50, doc.y, { continued: true });
-//                     doc.text('-', 150, doc.y, { continued: true });
-//                     doc.text('No attendance recorded', 250, doc.y);
-//                 } else {
-//                     lessons.forEach((lesson, idx) => {
-//                         doc.text(day, 50, doc.y, { continued: true });
-//                         doc.text(`${idx + 1}`, 150, doc.y, { continued: true });
-//                         let status = lesson.status === 'Present' ? 'Present' : lesson.status === 'Late' ? 'Late' : 'Absent';
-//                         doc.text(status, 250, doc.y);
-//                     });
-//                 }
-//                 doc.moveDown(0.5);
-//             });
-
-//             doc.end();
-//             // המתן לסיום יצירת ה-PDF לפני המשך הלולאה
-//             await new Promise(resolve => doc.on('end', resolve));
-//         }
-
-//         res.json({ message: "Emails sent successfully!" });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: "Error sending emails", error: err.message });
-//     }
-// };
-
-
-
 const sendWeeklyAttendanceEmails = async (req, res) => {
     try {
         const students = await Student.find({ active: true });
@@ -580,79 +514,77 @@ const sendWeeklyAttendanceEmails = async (req, res) => {
 
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
 
-        for (const student of students) {
-            const doc = new PDFDocument({ margin: 50 });
-            let buffers = [];
-            doc.on('data', buffers.push.bind(buffers));
+        // פונקציה שמייצרת PDF ושולחת מייל לתלמידה אחת
+        const sendMailForStudent = (student) => {
+            return new Promise((resolve, reject) => {
+                const doc = new PDFDocument({ margin: 50 });
+                let buffers = [];
+                doc.on('data', buffers.push.bind(buffers));
 
-            const attendance = student.weeklyAttendance || {};
+                const attendance = student.weeklyAttendance || {};
+                const maxLessons = Math.max(...days.map(day =>
+                    (attendance[day.toLowerCase()] || []).length
+                ));
 
-            // קביעת מספר שיעורים מקסימלי בפועל
-            const maxLessons = Math.max(...days.map(day =>
-                (attendance[day.toLowerCase()] || []).length
-            ));
+                doc.font('Helvetica-Bold')
+                   .fontSize(18)
+                   .text(`Weekly Attendance Report - ${student.name}`, { align: 'left' });
+                doc.moveDown();
 
-            // כותרת ראשית
-            doc.font('Helvetica-Bold')
-               .fontSize(18)
-               .text(`Weekly Attendance Report - ${student.name}`, { align: 'left' });
+                const startX = 50;
+                const columnWidth = 90;
+                let y = doc.y;
 
-            doc.moveDown();
-
-            const startX = 50;
-            const columnWidth = 90;
-            let y = doc.y;
-
-            // כותרת טור: מספרי שיעור + ימות השבוע
-            doc.font('Helvetica-Bold').fontSize(12);
-            doc.text('Lesson #', startX, y, { width: columnWidth, align: 'center' });
-            days.forEach((day, i) => {
-                doc.text(day, startX + columnWidth * (i + 1), y, { width: columnWidth, align: 'center' });
-            });
-
-            // שורות לפי מספר שיעור
-            for (let i = 0; i < maxLessons; i++) {
-                y += 20;
-                doc.font('Helvetica-Bold').text(`${i + 1}`, startX, y, {
-                    width: columnWidth,
-                    align: 'center'
+                doc.font('Helvetica-Bold').fontSize(12);
+                doc.text('Lesson #', startX, y, { width: columnWidth, align: 'center' });
+                days.forEach((day, i) => {
+                    doc.text(day, startX + columnWidth * (i + 1), y, { width: columnWidth, align: 'center' });
                 });
 
-                days.forEach((day, j) => {
-                    const status = attendance[day.toLowerCase()]?.[i]?.status || '';
-                    doc.font('Helvetica')
-                       .text(status, startX + columnWidth * (j + 1), y, {
-                           width: columnWidth,
-                           align: 'center'
-                       });
-                });
-            }
-
-            doc.end();
-
-            // חכה לסיום יצירת ה-PDF
-            await new Promise(resolve => {
-                doc.on('end', async () => {
-                    const pdfData = Buffer.concat(buffers);
-
-                    // שליחת המייל
-                    await transporter.sendMail({
-                        from: process.env.EMAIL_USER,
-                        to: student.parentEmail,
-                        subject: `Weekly Attendance Report for ${student.name}`,
-                        text: `Hello,\nAttached is a PDF file with the weekly attendance summary for your child ${student.name}.`,
-                        attachments: [
-                            {
-                                filename: `attendance_${student.name}.pdf`,
-                                content: pdfData
-                            }
-                        ]
+                for (let i = 0; i < maxLessons; i++) {
+                    y += 20;
+                    doc.font('Helvetica-Bold').text(`${i + 1}`, startX, y, {
+                        width: columnWidth,
+                        align: 'center'
                     });
 
-                    resolve();
+                    days.forEach((day, j) => {
+                        const status = attendance[day.toLowerCase()]?.[i]?.status || '';
+                        doc.font('Helvetica')
+                           .text(status, startX + columnWidth * (j + 1), y, {
+                               width: columnWidth,
+                               align: 'center'
+                           });
+                    });
+                }
+
+                doc.end();
+
+                doc.on('end', async () => {
+                    const pdfData = Buffer.concat(buffers);
+                    try {
+                        await transporter.sendMail({
+                            from: process.env.EMAIL_USER,
+                            to: student.parentEmail,
+                            subject: `Weekly Attendance Report for ${student.name}`,
+                            text: `Hello,\nAttached is a PDF file with the weekly attendance summary for your child ${student.name}.`,
+                            attachments: [
+                                {
+                                    filename: `attendance_${student.name}.pdf`,
+                                    content: pdfData
+                                }
+                            ]
+                        });
+                        resolve();
+                    } catch (err) {
+                        reject(err);
+                    }
                 });
             });
-        }
+        };
+
+        // שלח את כל המיילים במקביל
+        await Promise.all(students.map(sendMailForStudent));
 
         res.json({ message: "Emails sent successfully!" });
     } catch (err) {
