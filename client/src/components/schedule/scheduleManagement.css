@@ -1,0 +1,61 @@
+.schedule-management-container {
+    max-width: none;           /* מבטל הגבלה */
+    width: 90vw;              /* תופס את כל רוחב המסך */
+    padding: 2rem;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+.schedule-management-header {
+    font-size: 2rem;
+    color: #542468;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.schedule-title {
+    font-size: 1.75rem;
+    color: #542468;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid #542468;
+    padding-bottom: 0.5rem;
+}
+
+.select-class-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.select-label {
+    font-weight: 600;
+}
+
+.class-dropdown {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    min-width: 150px;
+    transition: border-color 0.2s ease;
+}
+
+.class-dropdown:focus {
+    outline: none;
+    border-color: #542468;
+    box-shadow: 0 0 0 2px rgba(84, 36, 104, 0.3);
+}
+
+.schedule-loading {
+    font-size: 1.25rem;
+    color: #542468;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.schedule-table-wrapper {
+    margin-top: 2rem;
+}
